@@ -132,13 +132,16 @@ d3.csv("../data/data.csv", function(err, timesData) {
   var circlesGroup = chartGroup.selectAll("circle")
     .data(timesData)
     .enter()
+    .append("g")
     .append("circle")
     .attr("cx", d => xLinearScale(d[chosenXAxis]))
     .attr("cy", d => yLinearScale(d.healthcare))
     .attr("r", 15)
     .attr("fill", "MediumBlue")
     .attr("opacity", ".5")
-    .text(function(d) { return d.abbr; });
+	// .append("text")
+	// .text(function(d) { return d.abbr; })
+	;
 
   // Create group for  2 x- axis labels
   var labelsGroup = chartGroup.append("g")
