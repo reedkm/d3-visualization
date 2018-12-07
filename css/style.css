@@ -15,12 +15,12 @@
   background-repeat: no-repeat;
   background-position: 50% 0;
   background-size: cover;
-  opacity: 0.3;
+  opacity: 0.1;
 }
 
 .tooltip {
   position: absolute;
-  width: 60px;
+  width: 90px;
   height: 60px;
   padding: 2px;
   padding-top: 8px;

@@ -20,7 +20,7 @@ var svg = d3
 	.attr("height", svgHeight);
 
 // Append an SVG group
-var chartGroup = svg.append("g")
+var circleGroup = svg.append("g")
 	.attr("transform", `translate(${margin.left}, ${margin.top})`);
 
 // Initial Params
@@ -61,6 +61,24 @@ function renderCircles(circlesGroup, newXScale, chosenXaxis) {
 	return circlesGroup;
 }
 
+function renderCirclesText(textGroup, newXScale, chosenXaxis) {
+
+	textGroup.transition()
+		.duration(1000)
+		.attr("x", d => newXScale(d[chosenXAxis]));
+
+	return textGroup;
+}
+
+function renderCirclesG(circlesG, newXScale, chosenXaxis) {
+
+	circlesG.transition()
+		.duration(1000)
+		.attr("cx", d => newXScale(d[chosenXAxis]));
+
+	return circlesG;
+}
+
 // function used for updating circles group with new tooltip
 function updateToolTip(chosenXAxis, circlesGroup) {
 
@@ -78,7 +96,7 @@ function updateToolTip(chosenXAxis, circlesGroup) {
 		.attr("class", "tooltip")
 		.offset([80, -60])
 		.html(function(d) {
-			return (`${d.abbr}<br>${label} ${d[chosenXAxis]}`);
+			return (`${d.state}<br>${label} ${d[chosenXAxis]}`);
 		});
 
 	circlesGroup.call(toolTip);
@@ -105,7 +123,10 @@ d3.csv("../data/data.csv", function(err, timesData) {
 		data.poverty = +data.poverty;
 		data.healthcare = +data.healthcare;
 		data.age = +data.age;
+		data.smokes = +data.smokes;
+		data.obesity = +data.obesity;
 		data.abbr = data.abbr;
+		data.state = data.state;
 		data.income = +data.income;
 	});
 
@@ -122,32 +143,41 @@ d3.csv("../data/data.csv", function(err, timesData) {
 	var leftAxis = d3.axisLeft(yLinearScale);
 
 	// append x axis
-	var xAxis = chartGroup.append("g")
+	var xAxis = circleGroup.append("g")
 		.classed("x-axis", true)
 		.attr("transform", `translate(0, ${height})`)
 		.call(bottomAxis);
 
 	// append y axis
-	chartGroup.append("g")
+	circleGroup.append("g")
 		.call(leftAxis)
 		.append("title");
 
 	// append initial circles
-	var circlesGroup = chartGroup.selectAll("circle")
+	var circlesGroup = circleGroup.selectAll("circle")
 		.data(timesData)
-		.enter()
+		.enter()	
 		.append("g")
-		.html(function(d) {
-			return (`<p>${d.abbr}</p>`)})
-		.append("circle")
+		.attr("class", "dot");
+
+	var circlesG = circlesGroup.append("circle")
+		.attr("class", "newblue")
 		.attr("cx", d => xLinearScale(d[chosenXAxis]))
 		.attr("cy", d => yLinearScale(d.healthcare))
 		.attr("r", 15)
-		.attr("fill", "MediumBlue")
+		.attr("fill", "LightBlue")
 		.attr("opacity", ".5");
+		
+	var textGroup = circlesGroup.append("text")
+		.attr("x", d => xLinearScale(d[chosenXAxis]))
+		.attr("y", d => yLinearScale(d.healthcare))
+		.attr('text-anchor', 'middle')
+		.attr('alignment-baseline', 'middle')
+		.style('font-size', '10')
+		.text(function(data) {return data.abbr});
 
-	// Create group for	 2 x- axis labels
-	var labelsGroup = chartGroup.append("g")
+	// Create group for	 3 x- axis labels
+	var labelsGroup = circleGroup.append("g")
 		.attr("transform", `translate(${width / 2}, ${height + 20})`);
 
 	var povertyLabel = labelsGroup.append("text")
@@ -172,16 +202,17 @@ d3.csv("../data/data.csv", function(err, timesData) {
 		.text("Household Income (median)");
 
 	// append y axis
-	chartGroup.append("text")
+	circleGroup.append("text")
 		.attr("transform", "rotate(-90)")
 		.attr("y", 0 - margin.left)
 		.attr("x", 0 - (height / 2))
 		.attr("dy", "1em")
 		.classed("axis-text", true)
-		.text("Lacks Healthcare (%)");
+		.text("Lacks Healthcare (%)");	
 
 	// updateToolTip function above csv import
 	var circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
+	var circlesG = updateToolTip(chosenXAxis, circlesG);
 
 	// x axis labels event listener
 	labelsGroup.selectAll("text")
@@ -204,7 +235,11 @@ d3.csv("../data/data.csv", function(err, timesData) {
 
 				// updates circles with new x values
 				circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis);
-
+				
+				circlesG = renderCirclesG(circlesG, xLinearScale, chosenXAxis);
+				
+				textGroup = renderCirclesText(textGroup, xLinearScale, chosenXAxis);
+				
 				// updates tooltips with new info
 				circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
 
