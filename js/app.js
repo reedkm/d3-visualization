@@ -145,12 +145,22 @@ function updateToolTip(chosenXAxis, circlesGroup) {
 	else {
 		var label = "Income";
 	}
+	
+	if (chosenYAxis === "healthcare") {
+		var labely = "Healthcare";
+	}
+	else if (chosenYAxis === "smokes") {
+		var labely = "Smokes";
+	}
+	else {
+		var labely = "Obesity";
+	}
 
 	var toolTip = d3.tip()
 		.attr("class", "tooltip")
 		.offset([80, -60])
 		.html(function(d) {
-			return (`${d.state}<br>${label} ${d[chosenXAxis]}`);
+			return (`${d.state}<br>${label} ${d[chosenXAxis]}<br>${labely} ${d[chosenYAxis]}`);
 		});
 
 	circlesGroup.call(toolTip);
